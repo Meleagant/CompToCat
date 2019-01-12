@@ -24,21 +24,21 @@
    There is some freedom while translating type classes as modules.
    For instance, a type class inheritance relation like:
 
-   class A => B where D
+       [class A => B where D]
 
    can be translated by:
 
-      module type B = sig
+      [module type B = sig
         include A
         D
-      end
+      end]
 
    or by:
 
-      module type B = sig
+      [module type B = sig
         module A : A
         D
-      end
+      end]
 
    Since this development contains a long chain of concepts related
    by inheritance, we had preferred (when possible) the first kind
@@ -86,11 +86,11 @@
 
     1. Read the following papers:
 
-      "The Simple Essence of Automatic Differentiation" (ICFP'2018)
-      "Compiling to categories" (ICFP'2017)
+      - "The Simple Essence of Automatic Differentiation" (ICFP'2018)
+      - "Compiling to categories" (ICFP'2017)
 
       and optionally (but may be easier to start with):
-      "Beautiful differentiation" (ICFP'2009)
+      - "Beautiful differentiation" (ICFP'2009)
 
     2. Complete the code by replacing 'failwith "Student! This is your job!"'
        or `todo` by the actual definition. While completing the code, we
@@ -297,41 +297,37 @@ module LambdaCat
   (* Question 1: Complete the following definitions. *)
   (*             Then, run `make -C tests/task-1`.   *)
   (*-------------------------------------------------*)
+  (* DONE : Quit straightforward ! *)
 
   let id () =
-    failwith "Student! This is your job!"
+    fun x -> x
 
   let compose () () () f g =
-    failwith "Student! This is your job!"
+      fun x -> x |> g |> f
 
   let pair () () () () f g =
-    failwith "Student! This is your job!"
+      fun (x,y) -> f x, g y
+        
+  let exl () () (x, y) = x
 
-  let exl () () (x, y) =
-    failwith "Student! This is your job!"
+  let exr () () (x, y) = y
 
-  let exr () () (x, y) =
-    failwith "Student! This is your job!"
+  let dup () x = (x, x)
 
-  let dup () x =
-    failwith "Student! This is your job!"
-
-  let apply () () (f, x) =
-    failwith "Student! This is your job!"
+  let apply () () (f, x) = f x
 
   let curry () () () f =
-    failwith "Student! This is your job!"
+    fun x y -> f (x, y)
 
   let uncurry () () () f =
-    failwith "Student! This is your job!"
+    fun (x, y) -> f x y
 
   (** STLC has a terminal object. *)
-  let it () x =
-    failwith "Student! This is your job!"
+  let it () x = ()
 
   (** STLC has constant arrows. *)
-  let unit_arrow () x =
-    failwith "Student! This is your job!"
+  let unit_arrow () x = 
+      fun () -> x
 
   let ok_unit = ()
 
@@ -440,7 +436,7 @@ end
 
 (**
 
-   If A and B are additive, so is A x B.
+   If [A] and [B] are additive, so is [A x B].
 
 *)
 module AdditivePair (AddA : Additive) (AddB : Additive)
@@ -452,7 +448,7 @@ module AdditivePair (AddA : Additive) (AddB : Additive)
 end
 
 (**
-    If A and B are additive then A -> B is additive too.
+    If [A] and [B] are additive then [A -> B] is additive too.
 
  *)
 module AdditiveLambda (A : sig type t end) (AddB : Additive)
@@ -526,58 +522,68 @@ end
   (*-------------------------------------------------*)
 
   let ok_pair (type a b) (oka : a ok) (okb : b ok) : (a * b) ok =
-    failwith "Student! This is your job!"
+    let module Oka = (val oka: Additive with type t = a) in
+    let module Okb = (val okb: Additive with type t = b) in
+    (module AdditivePair (Oka) (Okb): Additive with type t = a * b)
 
-  let id oka =
-    failwith "Student! This is your job!"
+  let id oka = 
+    AdditiveFun (fun x -> x)
 
   let compose oka okb okc (AdditiveFun f) (AdditiveFun g) =
-    failwith "Student! This is your job!"
+    AdditiveFun (fun x -> x |> g |> f)
 
   let pair oka okb okc okd (AdditiveFun f) (AdditiveFun g) =
     failwith "Student! This is your job!"
 
   let exl oka okb =
-    failwith "Student! This is your job!"
+    AdditiveFun fst
 
   let exr oka okb =
-    failwith "Student! This is your job!"
+    AdditiveFun snd 
 
   let dup oka =
-    failwith "Student! This is your job!"
+    AdditiveFun (fun x -> x,x)
 
-  let inl (type a b) (oka : a ok) (okb : b ok) =
-    failwith "Student! This is your job!"
+  (** [inl], [inr] & [jam] definitions use the [*F] functions defined above *)
+  let inl (type a b) (oka : a ok) (okb : b ok) = 
+    AdditiveFun (inlF okb)
 
   let inr (type a b) (oka : a ok) (okb : b ok) =
-    failwith "Student! This is your job!"
+    AdditiveFun (inrF oka)
 
   let jam (type a) (oka : a ok) =
-    failwith "Student! This is your job!"
+    AdditiveFun (jamF oka)
 
   let ti (type a) (module AddA : Additive with type t = a) =
-    failwith "Student! This is your job!"
+    AdditiveFun (fun () -> AddA.zero)
 
   let it (type a) (module AddA : Additive with type t = a) =
-    failwith "Student! This is your job!"
+    AdditiveFun (fun _ -> ())
 
   let unit_arrow (type a) (module AddA : Additive with type t = a) x =
-    failwith "Student! This is your job!"
+    AdditiveFun (fun () -> x)
 
   let ok_unit : unit ok =
-    failwith "Student! This is your job!"
+    let module OkU = struct
+      type t = unit
+      let zero = ()
+      let add () () = ()
+    end in
+      (module OkU : Additive with type t = unit)
 
   let apply oka okb =
-    failwith "Student! This is your job!"
+    AdditiveFun (fun (f, x) -> f x)
 
   let curry oka okb okc (AdditiveFun f) =
-    failwith "Student! This is your job!"
+    AdditiveFun (fun x -> (fun y -> f (x, y)))
 
   let uncurry oka okb okc (AdditiveFun f) =
-    failwith "Student! This is your job!"
+    AdditiveFun (fun (x, y) -> f x y)
 
   let ok_arrow (type a b) oka okb =
-    failwith "Student! This is your job!"
+    let module Oka = (val oka: Additive with type t = a) in
+    let module Okb = (val okb: Additive with type t = b) in
+    (module AdditiveLambda (Oka) (Okb): Additive with type t = a -> b)
 
 end
 
@@ -756,7 +762,7 @@ end
 
 (**
 
-   From a cartesian and cocartesian category C, we construct a
+   From a cartesian and cocartesian category [C], we construct a
    cartesian and cocartesian category where morphisms are
    differentiable functions.
 
@@ -767,9 +773,11 @@ end
    As explained in the paper, a derivative of f is a linear map f'
    such that:
 
-                   | f (x + ε) - (f x + f' x ε) |
-             lim   —————————————————————————————– = 0
-             ε→0              | ε |
+   {v
+                   | f (x + e) - (f x + f' x e) |
+             lim   ------------------------------ = 0
+            e -> o              | e |
+   v}
 
    This definition is general enough to capture a notion of derivatives
    over higher-dimensional spaces, typically Rⁿ → Rᵐ.
@@ -793,8 +801,17 @@ end
 
   type ('a, 'b) k = D of ('a -> ('b * ('a, 'b) C.k))
 
+  (** [linearD f f'] cnstruit un morphisme de la categorie [DiffCat] en
+   utilisant :
+       - [f] Comme fonction qui produit l'output [y]
+       - [f'] Comme differentielle
+       *)
   let linearD f f' = D (fun x -> (f x, f'))
 
+  (** Pour cette categorie la contrainte sur les elements est l'intersection
+    - de la contrainte sur les objets additifs
+    - et de la contrainte sur les elements de la categorie [C] 
+    *)
   type 'a ok = (module Additive with type t = 'a) * 'a C.ok
 
   (*-------------------------------------------------*)
@@ -803,47 +820,83 @@ end
   (*-------------------------------------------------*)
 
   let ok_pair (type a b) (oka : a ok) (okb : b ok) : (a * b) ok =
-    failwith "Student! This is your job!"
+      let adda, okaC = oka in
+      let addb, okbC = okb in
+      let module AddAB = AdditivePair 
+        (val adda: Additive with type t = a)
+        (val addb: Additive with type t = b) in
+      let addab = (module AddAB: Additive with type t = (a * b)) in
+        (addab, C.ok_pair okaC okbC)
 
   let id oka =
-    failwith "Student! This is your job!"
+    (* d'abord on extrait le morphisme de differentielle *)
+    let df = C.id @@ snd @@ oka in
+    D (fun x -> x, df)
 
   let compose oka okb okc (D g) (D f) =
-    failwith "Student! This is your job!"
+    D (fun x ->
+        let y, df = f x in
+        let z, dg = g y in
+        let dfg = C.compose (snd oka) (snd okb) (snd okc) dg df in
+          z, dfg)
 
   let pair
     : type a b c d.
       a ok -> b ok -> c ok -> d ok ->
       (a, c) k -> (b, d) k -> (a * b, c * d) k
     = fun oka okb okc okd (D f) (D g) ->
-    failwith "Student! This is your job!"
+    D (fun (x, y) ->
+        let z, df = f x in
+        let t, dg = g y in
+        let dfxg = C.pair 
+          (snd oka) (snd okb) (snd okc) (snd okd)
+          df dg in
+        (z, t), dfxg)
 
   let exl oka okb =
-    failwith "Student! This is your job!"
+    D (fun (x, y) ->
+        let df = C.exl (snd oka) (snd okb) in
+        x, df)
 
   let dup oka =
-    failwith "Student! This is your job!"
+    D (fun x -> 
+        let df = C.dup (snd oka) in
+        (x, x), df)
 
   let exr oka okb =
-    failwith "Student! This is your job!"
+    D (fun (x, y) ->
+        let df = C.exr (snd oka) (snd okb) in
+        y, df)
 
   let inl oka okb =
-    failwith "Student! This is your job!"
-
+    let f = inlF (fst okb) in
+    let df = C.inl (snd oka) (snd okb) in
+      linearD f df
+    
   let inr oka okb =
-    failwith "Student! This is your job!"
+    let f = inrF (fst oka) in
+    let df = C.inr (snd oka) (snd okb) in
+      linearD f df
 
   let jam oka =
-    failwith "Student! This is your job!"
+    let f = jamF (fst oka) in
+    let df = C.jam (snd oka) in
+      linearD f df
 
   let ti (type a) (((module AddA), coka) : a ok) : (unit, a) k =
-    failwith "Student! This is your job!"
+    let f () = AddA.zero in
+    let df = C.ti coka in
+      linearD f df
 
   let it (type a) (oka : a ok) : (a, unit) k =
-    failwith "Student! This is your job!"
+    let f _ = () in
+    let df = C.it (snd oka) in
+      linearD f df
 
-  let unit_arrow (type a) (oka : a ok) x : (unit, a) k =
-    failwith "Student! This is your job!"
+  let unit_arrow (type a) (oka : a ok) (x: a) : (unit, a) k =
+    let f () = x in
+    let df = C.unit_arrow (snd oka) x in
+      linearD f df
 
    let ok_unit =
      ((module AdditiveUnit : Additive with type t = unit), C.ok_unit)
@@ -940,11 +993,13 @@ end
   (* Question 4: Complete the following definitions. *)
   (*             Then, run `make -C tests/task-1`.   *)
   (*-------------------------------------------------*)
+  (* TODO *)
 
   let todo = D (fun _ -> failwith "Students! This is your job!")
 
   let negC =
-    todo
+   D (fun x ->
+       C.Num.neg x, assert false)
 
   let addC =
     todo
@@ -1032,6 +1087,7 @@ end
   (* Question 5: Complete the following definitions. *)
   (*             Then, run `make -C tests/task-1`.   *)
   (*-------------------------------------------------*)
+  (* TODO *)
 
   let id oka =
     failwith "Students! This is your job!"
