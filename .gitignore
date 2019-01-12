@@ -1,4 +1,9 @@
-_build/*
+*_build/*
+*.cmi
+*.cmo
+*.byte
+*.log
 .merlin
+docs/*.html
 joujou
 *~
