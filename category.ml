@@ -533,7 +533,7 @@ end
     AdditiveFun (fun x -> x |> g |> f)
 
   let pair oka okb okc okd (AdditiveFun f) (AdditiveFun g) =
-    failwith "Student! This is your job!"
+    AdditiveFun (fun (x, y) -> f x, g y)
 
   let exl oka okb =
     AdditiveFun fst
@@ -822,9 +822,9 @@ end
   let ok_pair (type a b) (oka : a ok) (okb : b ok) : (a * b) ok =
       let adda, okaC = oka in
       let addb, okbC = okb in
-      let module AddAB = AdditivePair 
-        (val adda: Additive with type t = a)
-        (val addb: Additive with type t = b) in
+      let module AddA = (val adda: Additive with type t = a) in
+      let module AddB = (val addb: Additive with type t = b) in
+      let module AddAB = AdditivePair (AddA) (AddB) in
       let addab = (module AddAB: Additive with type t = (a * b)) in
         (addab, C.ok_pair okaC okbC)
 
@@ -835,9 +835,9 @@ end
 
   let compose oka okb okc (D g) (D f) =
     D (fun x ->
-        let y, df = f x in
-        let z, dg = g y in
-        let dfg = C.compose (snd oka) (snd okb) (snd okc) dg df in
+        let y, df_x = f x in
+        let z, dg_fx = g y in
+        let dfg = C.compose (snd oka) (snd okb) (snd okc) dg_fx df_x in
           z, dfg)
 
   let pair
@@ -846,11 +846,11 @@ end
       (a, c) k -> (b, d) k -> (a * b, c * d) k
     = fun oka okb okc okd (D f) (D g) ->
     D (fun (x, y) ->
-        let z, df = f x in
-        let t, dg = g y in
+        let z, df_x = f x in
+        let t, dg_y = g y in
         let dfxg = C.pair 
           (snd oka) (snd okb) (snd okc) (snd okd)
-          df dg in
+          df_x dg_y in
         (z, t), dfxg)
 
   let exl oka okb =
@@ -997,27 +997,36 @@ end
 
   let todo = D (fun _ -> failwith "Students! This is your job!")
 
+  (** Since [negC], [addC] are linear functions, on every points, the
+   differential is the function itself *)
   let negC =
-   D (fun x ->
-       C.Num.neg x, assert false)
+    D (fun x -> C.Num.neg x, C.negC)
 
   let addC =
-    todo
+    D (fun (x, y) -> C.Num.add x y, C.addC)
 
   let mulC =
-    todo
+    D (fun (x, y) -> C.Num.mul x y, 
+      let sc_x = C.scale x
+      and sc_y = C.scale y in
+      let sc_xy = C.pair C.ok_t C.ok_t C.ok_t C.ok_t sc_y sc_x in
+      let ok_pair = C.ok_pair C.ok_t C.ok_t in
+      (C.compose ok_pair ok_pair C.ok_t  (C.jam C.ok_t) sc_xy ) )
+     
 
   let sinC =
-    todo
+    D (fun x -> Floating.sin x, C.scale (Floating.cos x))  
 
   let cosC =
-    todo
+    D (fun x -> Floating.cos x, C.scale (x |> Floating.sin |> C.Num.neg)  )
 
   let expC =
-    todo
+    D (fun x -> Floating.exp x, C.scale (Floating.exp x))  
 
   let invC =
-    todo
+    D (fun x -> Floating.inv x, 
+      let inv_sq = C.Num.mul (Floating.inv x) (Floating.inv x) in
+      C.scale (C.Num.neg inv_sq) )
 
 end
 
@@ -1089,43 +1098,44 @@ end
   (*-------------------------------------------------*)
   (* TODO *)
 
+  let todo = Cont (fun _ -> failwith "Students! This is your job!")
   let id oka =
-    failwith "Students! This is your job!"
+    todo
 
   let compose oka okb okc (Cont g) (Cont f) =
-    failwith "Students! This is your job!"
+    todo
 
   let pair oka okb okc okd (Cont f) (Cont g) =
-    failwith "Students! This is your job!"
+    todo
 
   let exl (type a b) (oka : a C.ok) (okb : b C.ok) : (a * b, a) k =
-    failwith "Students! This is your job!"
+    todo
 
   let exr (type a b) (oka : a C.ok) (okb : b C.ok) : (a * b, b) k =
-    failwith "Students! This is your job!"
+    todo
 
   let dup (type a) (oka : a C.ok) : (a, a * a) k =
-    failwith "Students! This is your job!"
+    todo
 
   let inl (type a b) (oka : a C.ok) (okb : b C.ok) : (a, a * b) k =
-    failwith "Students! This is your job!"
+    todo
 
   let inr (type a b) (oka : a C.ok) (okb : b C.ok) : (b, a * b) k =
-    failwith "Students! This is your job!"
+    todo
 
   let jam (type a) (oka : a C.ok) : (a * a, a) k =
-    failwith "Students! This is your job!"
+    todo
 
   let ok_unit = C.ok_unit
 
   let ti oka =
-    failwith "Students! This is your job!"
+    todo
 
   let it oka =
-    failwith "Students! This is your job!"
+    todo
 
   let unit_arrow (type a) (oka : a ok) (x : a) : (unit, a) k =
-    failwith "Students! This is your job!"
+    todo
 
 end
 
