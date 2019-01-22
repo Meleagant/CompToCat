@@ -1,5 +1,6 @@
 *_build/*
 tests/task-*/_build/*
+tests/task-*/*.ml
 *.cmi
 *.cmo
 *.byte
