@@ -1,5 +1,7 @@
 let typecheck_only = ref false
 
+let typecheck_eta_only = ref false
+
 let without_oks = ref false
 
 let simplify = ref true
@@ -10,6 +12,9 @@ let options = Arg.([
   "--typecheck", Unit (fun () -> typecheck_only := true),
   " Typecheck and stop.";
 
+  "--typecheck-eta", Unit (fun () -> typecheck_eta_only := true),
+  " Typecheck, eta-expand and stop.";
+
   "--no-ok", Unit (fun () -> without_oks := true),
   " Do not produce 'ok' witnesses.";
 
@@ -19,7 +24,7 @@ let options = Arg.([
   "--compact", Unit (fun () -> compact := true),
   " Compactify the generated OCaml code."
 
-])
+] |> align)
 
 let source_file =
   ref ""

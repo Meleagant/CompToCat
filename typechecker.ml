@@ -68,7 +68,7 @@ let check_program (source : program_with_locations) : program_with_locations =
     let _ = if not (SMap.mem ident env.id_env) then
       let pos = Position.position term in
       let msg = Printf.sprintf 
-        "The identifiant %s is not in the current environment\n" ident in
+        "Type Error: The identifiant %s is not in the current environment" ident in
         type_error pos msg
     in SMap.find ident env.id_env
   | App (t1, t2) ->
@@ -82,7 +82,7 @@ let check_program (source : program_with_locations) : program_with_locations =
     | _ ->
     let pos = Position.position term in
     let msg = Printf.sprintf 
-      "An argument of type %s is applied to an expression of type %s"
+      "Type Error: An argument of type %s is applied to an expression of type %s"
       (string_of_type typ1) (string_of_type typ2) in
     type_error pos msg
   end
@@ -102,7 +102,7 @@ let check_program (source : program_with_locations) : program_with_locations =
     | typ -> 
       let pos = Position.position term in
       let msg = Printf.sprintf 
-      "An argument of type %s is applied to the function Fst"
+      "Type Error: An argument of type %s is applied to the function Fst"
         (string_of_type typ) in
       type_error pos msg
   end
@@ -113,7 +113,7 @@ let check_program (source : program_with_locations) : program_with_locations =
     | typ -> 
       let pos = Position.position term in
       let msg = Printf.sprintf 
-      "An argument of type %s is applied to the function Snd"
+      "Type Error: An argument of type %s is applied to the function Snd"
         (string_of_type typ) in
       type_error pos msg
   end
@@ -147,21 +147,33 @@ let check_program (source : program_with_locations) : program_with_locations =
 (** [eta_expanse source] makes sure that only functions are defined at
     toplevel and turns them into eta-long forms if needed. *)
 let eta_expanse (source: program_with_locations) :  program_with_locations =
-  let eta_expanse def = 
+  let eta_expanse def : (binding Position.located * term' Position.located) =
     let bind_loc, term = def in
     let (Id id, typ) = Position.value bind_loc in
     match typ with
-    | TyArrow _ ->
+    | TyArrow (arg, res) ->
     begin
       match Position.value term with
       | Lam _ -> def
-      | _ -> Printf.printf "Caca\n"; assert false
+      | t ->
+         let pos = Position.pos_or_undef None in
+         let fresh = Var (Id "x") |> Position.with_pos pos in
+         let app = App (term, fresh) |> Position.with_pos pos in
+         let bind = (Id "x"), typ in
+         let t' = Lam (bind, app) |> Position.with_pos pos in
+         bind_loc, t'
     end
-    | _ -> Printf.printf "Caca\n"; assert false
+    | _ -> 
+      let pos = Position.position bind_loc in
+      let msg = Printf.sprintf
+        "Eta Error: The binding %s is of type %s, that is not an arrow type"
+        id (string_of_type typ) in
+      type_error pos msg
   in List.map eta_expanse source
 
 let program : program_with_locations -> program_with_locations = fun source ->
   let xsource = check_program source in
+  let _ =   if !Options.typecheck_only then exit 0 in
   let xsource = eta_expanse xsource in
-  if !Options.typecheck_only then exit 0;
-  eta_expanse xsource
+  let _ =   if !Options.typecheck_eta_only then exit 0 in
+  xsource
