@@ -995,7 +995,6 @@ end
   (*-------------------------------------------------*)
   (* TODO *)
 
-  let todo = D (fun _ -> failwith "Students! This is your job!")
 
   (** Since [negC], [addC] are linear functions, on every points, the
    differential is the function itself *)
@@ -1096,47 +1095,49 @@ end
   (* Question 5: Complete the following definitions. *)
   (*             Then, run `make -C tests/task-1`.   *)
   (*-------------------------------------------------*)
-  (* TODO *)
 
-  let todo = Cont (fun _ -> failwith "Students! This is your job!")
   let id oka =
-    todo
+    cont oka oka (C.id oka)
 
   let compose oka okb okc (Cont g) (Cont f) =
-    todo
+    Cont (fun x ->  f @@ g @@ x )
 
-  let pair oka okb okc okd (Cont f) (Cont g) =
-    todo
+  let pair oka okb okc okd (Cont f) (Cont g)  =
+    let morph phi = 
+      phi |>  AFD.unjoin R.okr okc okd 
+          |> (fun (phi1, phi2) -> f phi1, g phi2)
+          |> AFD.join R.okr oka okb 
+    in
+    Cont morph 
 
   let exl (type a b) (oka : a C.ok) (okb : b C.ok) : (a * b, a) k =
-    todo
+    cont (ok_pair oka okb) oka (C.exl oka okb)
 
   let exr (type a b) (oka : a C.ok) (okb : b C.ok) : (a * b, b) k =
-    todo
+    cont (ok_pair oka okb) okb (C.exr oka okb)
 
   let dup (type a) (oka : a C.ok) : (a, a * a) k =
-    todo
+    cont oka (ok_pair oka oka) (C.dup oka)
 
   let inl (type a b) (oka : a C.ok) (okb : b C.ok) : (a, a * b) k =
-    todo
+    cont oka (ok_pair oka okb) (C.inl oka okb)
 
   let inr (type a b) (oka : a C.ok) (okb : b C.ok) : (b, a * b) k =
-    todo
+    cont okb (ok_pair oka okb) (C.inr oka okb)
 
   let jam (type a) (oka : a C.ok) : (a * a, a) k =
-    todo
+    cont (ok_pair oka oka) oka (C.jam oka)
 
   let ok_unit = C.ok_unit
 
   let ti oka =
-    todo
+    cont ok_unit oka (C.ti oka) 
 
   let it oka =
-    todo
+    cont oka ok_unit (C.it oka)
 
   let unit_arrow (type a) (oka : a ok) (x : a) : (unit, a) k =
-    todo
-
+    cont ok_unit oka (C.unit_arrow oka x)
 end
 
 (**
@@ -1166,7 +1167,7 @@ struct
   include ContinuationCategoryTransformer (C) (R)
   type t = C.t
   let scale s =
-    failwith "Students! This is your job!"
+    C.(cont ok_t ok_t (scale s))
 end
 
 (**
