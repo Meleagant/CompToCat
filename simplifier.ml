@@ -5,6 +5,7 @@ open Target
     from the compiled programs. *)
 let rewrite : Target.program -> Target.program = fun defs ->
   if !Options.simplify then
-    failwith "Student! This is your job!"
+    defs
+    (* failwith "Student! This is your job!" *)
   else
     defs
