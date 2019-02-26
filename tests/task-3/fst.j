@@ -1,3 +1,3 @@
-let (f : float * float -> float) =
+let (fstf : float * float -> float) =
     fun (p : float * float) ->
     fst p

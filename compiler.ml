@@ -18,7 +18,7 @@ let rec ok_of_typ = function
 type direction = | Left | Right 
 type path = direction list
 type local_env = (path SMap.t)*typ
-type glob_env = (Target.t * ok) SMap.t
+type glob_env = (Target.t * term Source.t) SMap.t
 
 let print_env env = 
     let print_direct = function
@@ -89,50 +89,120 @@ let extract_var (map, typ) ident =
 
 
 
-let rec compile local_env glob_env = function
+(* ------------------------------------------------
+ * Core Function
+ * ------------------------------------------------
+ *)
+let rec compile local_env glob_env : term Source.t -> Target.t *  Target.ok = function
   | Lam ((Id ident, typ), term) ->
-     let env = add_env local_env ident typ in
-     let code, ok_res = compile env glob_env term in
-     let oka = ok_of_typ @@ snd @@ local_env in
-     let okb = ok_of_typ typ in
-     let curry = Curry (oka, okb, ok_res) in
-     App (curry, code), OkArrow ((ok_of_typ typ), ok_res) 
-  | Var (Id ident) -> extract_var local_env ident
-  | App (u, v) ->
-     let code_u, ok_u = compile local_env glob_env u in
-     let ok_f = match ok_u with
-      | 
-     let code_v, ok_v = compile local_env glob_env v in
-     let ok_a = ok_of_typ (snd local_env) in
-     let fork = Fork (ok_a, ok_u, ok_v) in
+    let env = add_env local_env ident typ in
+    let code, ok_res = compile env glob_env term in
+    let oka = ok_of_typ @@ snd @@ local_env in
+    let okb = ok_of_typ typ in
+    let curry = Curry (oka, okb, ok_res) in
+    App (curry, code), OkArrow ((ok_of_typ typ), ok_res) 
+  | Var (Id ident) when SMap.mem ident (fst local_env) -> 
+    extract_var local_env ident
+  | Var (Id ident) when SMap.mem ident glob_env ->
+    let src = SMap.find ident glob_env |> snd  in
+      compile local_env glob_env src
+  | Var (Id ident) ->
     assert false
-  | Pair _ 
-  | Fst _ 
-  | Snd _ -> 
-    Printf.printf "Pas encore fait !\n"; 
-    assert false
-  | Literal litt -> Literal litt, OkFloat 
-  | Primitive f0 -> 
+  | App (Primitive f0, v) ->
   begin
-    match f0 with 
-    | Sin | Cos | Exp | Inv ->
-      let ok_res = OkArrow (OkFloat, OkFloat) in
-      Primitive f0, ok_res
-    | Add | Mul | Neg ->
-      let ok_res = OkArrow (OkFloat, OkArrow (OkFloat, OkFloat)) in
-      Primitive f0, ok_res
+    let code_v, ok_v = compile local_env glob_env v in
+    let _ = assert (ok_v = OkFloat) in
+    match f0 with
+      | Sin | Cos | Exp | Inv | Neg -> 
+        let ok_a = ok_of_typ (snd local_env) in
+        let compose = Compose (ok_a, OkFloat, OkFloat) in
+        App (
+            App (compose, Primitive f0), 
+            code_v
+            ), OkFloat
+      | Add | Mul -> 
+        let ok_a = ok_of_typ (snd local_env) in
+        let compose = Compose (ok_a, OkFloat, OkArrow (OkFloat, OkFloat)) in
+        let curry = Curry (OkFloat, OkFloat, OkFloat) in
+        App (
+            App (
+                compose,
+                App (curry, Primitive f0)),
+            code_v), OkArrow (OkFloat, OkFloat)
   end
+  | App (u, v) ->
+    let code_u, ok_u = compile local_env glob_env u in
+    let code_v, ok_v = compile local_env glob_env v in
+    let ok_res = match ok_u with
+      | OkArrow (ok_a, ok_b) when ok_a = ok_v -> ok_b
+      | _ -> assert false
+    in
+    let ok_a = ok_of_typ (snd local_env) in
+    let fork = Fork (ok_a, ok_u, ok_v) in
+    let apply = Apply (ok_v, ok_res) in
+    let compose = Compose (ok_a, (OkPair (ok_u, ok_v)), ok_res) in
+      App (
+        App (compose, apply),
+        App (
+          App (fork, code_u),
+          code_v
+        )
+      ), ok_res
+  | Pair (u, v) ->
+    let code_u, ok_u = compile local_env glob_env u in
+    let code_v, ok_v = compile local_env glob_env v in
+    let ok_a = ok_of_typ (snd local_env) in
+    let fork = Fork (ok_a, ok_u, ok_v) in
+    App (
+        App (fork, code_u),
+        code_v), OkPair (ok_u, ok_v)
+  | Fst u ->
+    let code_u, ok_u = compile local_env glob_env u in
+    let ok_a, ok_b = match ok_u with
+      | OkPair (ok_a, ok_b) -> ok_a, ok_b
+      | _ -> assert false
+    in
+    let exl = Exl (ok_a, ok_b) in
+    let ok_0 = ok_of_typ (snd local_env) in
+    let compose = Compose (ok_0, ok_u, ok_a) in
+    App (
+        App (compose, exl),
+        code_u), ok_a
+  | Snd u -> 
+    let code_u, ok_u = compile local_env glob_env u in
+    let ok_a, ok_b = match ok_u with
+      | OkPair (ok_a, ok_b) -> ok_a, ok_b
+      | _ -> assert false
+    in
+    let exr = Exr (ok_a, ok_b) in
+    let ok_0 = ok_of_typ (snd local_env) in
+    let compose = Compose (ok_0, ok_u, ok_b) in
+    App (
+        App (compose, exr),
+        code_u), ok_b
+  | Literal litt -> 
+    let ok_a = ok_of_typ (snd local_env) in
+    let it = It ok_a in
+    let compose = Compose (ok_a, OkUnit, OkFloat) in
+    let unitarrow = UnitArrow OkFloat in
+      App (
+          App (
+              compose, 
+              App (unitarrow, Literal litt)),
+          it), OkFloat
+  | Primitive f0 -> assert false
 
-let compile_init glob_env (((Id ident, typ), term) : binding*term) =
+
+let compile_init glob_env (((Id ident, typ), term0) : binding*term) =
   let new_env, term = 
-    match term with
+    match term0 with
     | Lam ((Id ident, typ), term) ->
       let map = SMap.singleton ident [] in
       (map, typ), term
     | _ -> assert false
   in
   let code, ok = compile new_env glob_env term in 
-  SMap.add ident (code, ok) glob_env
+  SMap.add ident (code, term0) glob_env
 
 
 

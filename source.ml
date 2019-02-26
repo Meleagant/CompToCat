@@ -83,7 +83,7 @@ let remove_locations_in_program (p : program_with_locations) : program =
   List.map (fun (b, t) -> Position.(value b, remove_locations (value t))) p
 
 let string_of_literal = function
-  | Float f -> string_of_float f
+  | Float f -> "("^(string_of_float f)^")"
 
 let string_of_primitive = function
   | Sin -> "sin"

@@ -42,4 +42,4 @@ let epsilon_apply (D f, x) epsilon =
 let epsilon_dapply (D f) x epsilon =
   snd (epsilon_apply (D f, x) epsilon)
 
-let epsilon = 0.1
+let epsilon = 0.01
