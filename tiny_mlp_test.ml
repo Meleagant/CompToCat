@@ -69,4 +69,7 @@ let test =
   let trained_net = train training_set in
   let _ = Printf.printf "Final error : %f\n" (eval_net trained_net training_set)
   in
+  let _ = Printf.printf "Trained Net: wx = %f\n             wy = %f\n"
+    (fst trained_net) (snd trained_net)  
+  in
   assert (eval_net trained_net training_set < acceptable_error)

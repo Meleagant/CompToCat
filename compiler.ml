@@ -157,7 +157,8 @@ let rec compile local_env glob_env : term Source.t -> Target.t *  Target.ok = fu
   | Var (Id ident) ->
     assert false
   (*
-   * Compiling a primitive with both arguments
+   * Compiling a primitive with both arguments:
+   *   f0 u v => f0 o ( u /\ v )
    *)
   | App (App (Primitive f0, u), v) ->
   begin
@@ -187,6 +188,8 @@ let rec compile local_env glob_env : term Source.t -> Target.t *  Target.ok = fu
     let code_v, ok_v = compile local_env glob_env v in
     let _ = assert (ok_v = OkFloat) in
     match f0 with
+      (*    f0 v => f0 o v
+       *) 
       | Sin | Cos | Exp | Inv | Neg -> 
         let ok_a = ok_of_typ (snd local_env) in
         let compose = Compose (ok_a, OkFloat, OkFloat) in
@@ -194,6 +197,8 @@ let rec compile local_env glob_env : term Source.t -> Target.t *  Target.ok = fu
             App (compose, Primitive f0), 
             code_v
             ), OkFloat
+      (*    f0 v => (curry f0) o v
+       *) 
       | Add | Mul -> 
         let ok_a = ok_of_typ (snd local_env) in
         let compose = Compose (ok_a, OkFloat, OkArrow (OkFloat, OkFloat)) in
