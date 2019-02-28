@@ -1,7 +1,14 @@
 (ocamllex lexer)
 
+(ocamllex lexer0)
+
 (menhir
   (modules parser)
+  (flags --explain)
+)
+
+(menhir
+  (modules parser0)
   (flags --explain)
 )
 
