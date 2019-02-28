@@ -50,20 +50,13 @@ let string_of_type t =
 let check_program (source : program_with_locations) : program_with_locations =
   let empty_env () = 
       { id_env = SMap.empty ; ty_env = SMap.empty } in 
-  (*
-  let init_env (source: program_with_locations) : env = 
-    List.fold_left 
-    (fun env (binding_loc, _) ->
-        let Id ident, typ = Position.value binding_loc in
-        let _ = if SMap.mem ident env.id_env then assert false  in
-        let id_env = SMap.add ident typ env.id_env in
-        {env with id_env = id_env})
-    (empty_env ())
-    source in
-*)  
-(* The main function *)
+(* The main recursive function : check if a term is well-typed and returns its
+ * type *)
   let rec type_term (term: term' Position.located ) env : typ = 
   match Position.value term with
+  (* 
+   * VAR case 
+   *)
   | Var (Id ident) -> 
     let _ = if not (SMap.mem ident env.id_env) then
       let pos = Position.position term in
@@ -71,6 +64,9 @@ let check_program (source : program_with_locations) : program_with_locations =
         "Type Error: The identifiant %s is not in the current environment" ident in
         type_error pos msg
     in SMap.find ident env.id_env
+  (* 
+   * App case 
+   *)
   | App (t1, t2) ->
   begin
     let typ1 = type_term t1 env 
@@ -86,15 +82,24 @@ let check_program (source : program_with_locations) : program_with_locations =
       (string_of_type typ1) (string_of_type typ2) in
     type_error pos msg
   end
+  (* 
+   * Lam case 
+   *)
   | Lam ((Id ident, typ), t) ->
     let id_env = SMap.add ident typ env.id_env in
     let new_env = {env with id_env = id_env } in
     let typ_ret = type_term t new_env in
     TyArrow (typ, typ_ret)
+  (* 
+   * Pair case 
+   *)
   | Pair (t1, t2) ->
     let typ1 = type_term t1 env 
     and typ2 = type_term t2 env 
     in TyPair (typ1, typ2)
+  (* 
+   * Fst case 
+   *)
   | Fst t ->
   begin
     match type_term t env with
@@ -106,6 +111,9 @@ let check_program (source : program_with_locations) : program_with_locations =
         (string_of_type typ) in
       type_error pos msg
   end
+  (* 
+   * Snd case 
+   *)
   | Snd t ->
   begin
     match type_term t env with
@@ -117,7 +125,13 @@ let check_program (source : program_with_locations) : program_with_locations =
         (string_of_type typ) in
       type_error pos msg
   end
+  (* 
+   * Literal case 
+   *)
   | Literal _ -> TyConstant TyFloat
+  (* 
+   * Primitive case 
+   *)
   | Primitive prim ->
     let tyFloat = TyConstant TyFloat in
     match prim with

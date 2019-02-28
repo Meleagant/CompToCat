@@ -25,7 +25,7 @@ let t_6 = t_5 t_1
 
 let t_7 = it t_3
 
-let t_8 = 1.
+let t_8 = (1.)
 
 let t_9 = unit_arrow t_3
 
@@ -169,65 +169,65 @@ let t_78 = t_77 (t_76)
 
 let t_79 = t_78 (t_75)
 
-let t_80 = exl t_66 t_3
+let t_80 = exr t_66 t_3
 
-let t_81 = exr t_37 t_3
+let t_81 = exl t_66 t_3
 
-let t_82 = compose t_66 t_50 t_3
+let t_82 = exr t_37 t_3
 
-let t_83 = t_82 (t_81)
+let t_83 = compose t_66 t_50 t_3
 
-let t_84 = t_83 (t_65)
+let t_84 = t_83 (t_82)
 
-let t_85 = (ok_pair t_66 t_3)
+let t_85 = t_84 (t_65)
 
-let t_86 = compose t_85 t_66 t_3
+let t_86 = (ok_pair t_66 t_3)
 
-let t_87 = t_86 (t_84)
+let t_87 = compose t_86 t_66 t_3
 
-let t_88 = t_87 (t_80)
+let t_88 = t_87 (t_85)
 
-let t_89 = exr t_66 t_3
+let t_89 = t_88 (t_81)
 
-let t_90 = fork t_85 t_3 t_3
+let t_90 = fork t_86 t_3 t_3
 
 let t_91 = t_90 (t_89)
 
-let t_92 = t_91 (t_88)
+let t_92 = t_91 (t_80)
 
 let t_93 = mulC
 
-let t_94 = compose t_85 t_19 t_3
+let t_94 = compose t_86 t_19 t_3
 
 let t_95 = t_94 t_93
 
 let t_96 = t_95 (t_92)
 
-let t_97 = exr t_28 t_3
+let t_97 = exr t_50 t_3
 
-let t_98 = compose t_50 t_37 t_3
+let t_98 = t_87 (t_97)
 
-let t_99 = t_98 (t_97)
+let t_99 = t_98 (t_81)
 
-let t_100 = t_99 (t_49)
+let t_100 = exr t_28 t_3
 
-let t_101 = t_82 (t_100)
+let t_101 = compose t_50 t_37 t_3
 
-let t_102 = t_101 (t_65)
+let t_102 = t_101 (t_100)
 
-let t_103 = t_86 (t_102)
+let t_103 = t_102 (t_49)
 
-let t_104 = t_103 (t_80)
+let t_104 = t_83 (t_103)
 
-let t_105 = exr t_50 t_3
+let t_105 = t_104 (t_65)
 
-let t_106 = t_86 (t_105)
+let t_106 = t_87 (t_105)
 
-let t_107 = t_106 (t_80)
+let t_107 = t_106 (t_81)
 
 let t_108 = t_90 (t_107)
 
-let t_109 = t_108 (t_104)
+let t_109 = t_108 (t_99)
 
 let t_110 = t_95 (t_109)
 
@@ -239,17 +239,17 @@ let t_113 = t_94 t_18
 
 let t_114 = t_113 (t_112)
 
-let t_115 = id t_85
+let t_115 = id t_86
 
-let t_116 = fork t_85 t_85 t_3
+let t_116 = fork t_86 t_86 t_3
 
 let t_117 = t_116 (t_115)
 
 let t_118 = t_117 (t_114)
 
-let t_119 = exr t_85 t_3
+let t_119 = exr t_86 t_3
 
-let t_120 = (ok_pair t_85 t_3)
+let t_120 = (ok_pair t_86 t_3)
 
 let t_121 = compose t_120 t_3 t_3
 
@@ -285,13 +285,13 @@ let t_136 = t_121 t_23
 
 let t_137 = t_136 (t_135)
 
-let t_138 = compose t_85 t_120 t_3
+let t_138 = compose t_86 t_120 t_3
 
 let t_139 = t_138 (t_137)
 
 let t_140 = t_139 (t_118)
 
-let t_141 = compose t_66 t_85 t_3
+let t_141 = compose t_66 t_86 t_3
 
 let t_142 = t_141 (t_140)
 
@@ -315,7 +315,7 @@ let t_151 = t_150 (t_149)
 
 let t_152 = t_151 (t_35)
 
-let t_153 = t_47 (t_97)
+let t_153 = t_47 (t_100)
 
 let t_154 = fork t_50 t_50 t_28
 
@@ -437,63 +437,63 @@ let t_212 = t_211 (t_210)
 
 let t_213 = t_212 (t_209)
 
-let t_214 = exl t_200 t_3
+let t_214 = exr t_200 t_3
 
-let t_215 = exr t_170 t_3
+let t_215 = exl t_200 t_3
 
-let t_216 = compose t_200 t_185 t_3
+let t_216 = exr t_170 t_3
 
-let t_217 = t_216 (t_215)
+let t_217 = compose t_200 t_185 t_3
 
-let t_218 = t_217 (t_199)
+let t_218 = t_217 (t_216)
 
-let t_219 = (ok_pair t_200 t_3)
+let t_219 = t_218 (t_199)
 
-let t_220 = compose t_219 t_200 t_3
+let t_220 = (ok_pair t_200 t_3)
 
-let t_221 = t_220 (t_218)
+let t_221 = compose t_220 t_200 t_3
 
-let t_222 = t_221 (t_214)
+let t_222 = t_221 (t_219)
 
-let t_223 = exr t_200 t_3
+let t_223 = t_222 (t_215)
 
-let t_224 = fork t_219 t_3 t_3
+let t_224 = fork t_220 t_3 t_3
 
 let t_225 = t_224 (t_223)
 
-let t_226 = t_225 (t_222)
+let t_226 = t_225 (t_214)
 
-let t_227 = compose t_219 t_19 t_3
+let t_227 = compose t_220 t_19 t_3
 
 let t_228 = t_227 t_93
 
 let t_229 = t_228 (t_226)
 
-let t_230 = exr t_158 t_3
+let t_230 = exr t_185 t_3
 
-let t_231 = compose t_185 t_170 t_3
+let t_231 = t_221 (t_230)
 
-let t_232 = t_231 (t_230)
+let t_232 = t_231 (t_215)
 
-let t_233 = t_232 (t_184)
+let t_233 = exr t_158 t_3
 
-let t_234 = t_216 (t_233)
+let t_234 = compose t_185 t_170 t_3
 
-let t_235 = t_234 (t_199)
+let t_235 = t_234 (t_233)
 
-let t_236 = t_220 (t_235)
+let t_236 = t_235 (t_184)
 
-let t_237 = t_236 (t_214)
+let t_237 = t_217 (t_236)
 
-let t_238 = exr t_185 t_3
+let t_238 = t_237 (t_199)
 
-let t_239 = t_220 (t_238)
+let t_239 = t_221 (t_238)
 
-let t_240 = t_239 (t_214)
+let t_240 = t_239 (t_215)
 
 let t_241 = t_224 (t_240)
 
-let t_242 = t_241 (t_237)
+let t_242 = t_241 (t_232)
 
 let t_243 = t_228 (t_242)
 
@@ -505,17 +505,17 @@ let t_246 = t_227 t_18
 
 let t_247 = t_246 (t_245)
 
-let t_248 = id t_219
+let t_248 = id t_220
 
-let t_249 = fork t_219 t_219 t_3
+let t_249 = fork t_220 t_220 t_3
 
 let t_250 = t_249 (t_248)
 
 let t_251 = t_250 (t_247)
 
-let t_252 = exr t_219 t_3
+let t_252 = exr t_220 t_3
 
-let t_253 = (ok_pair t_219 t_3)
+let t_253 = (ok_pair t_220 t_3)
 
 let t_254 = compose t_253 t_3 t_3
 
@@ -551,13 +551,13 @@ let t_269 = t_254 t_23
 
 let t_270 = t_269 (t_268)
 
-let t_271 = compose t_219 t_253 t_3
+let t_271 = compose t_220 t_253 t_3
 
 let t_272 = t_271 (t_270)
 
 let t_273 = t_272 (t_251)
 
-let t_274 = compose t_200 t_219 t_3
+let t_274 = compose t_200 t_220 t_3
 
 let t_275 = t_274 (t_273)
 
@@ -593,13 +593,13 @@ let t_290 = compose t_66 t_3 t_3
 
 let t_291 = t_290 t_1
 
-let t_292 = t_291 (t_105)
+let t_292 = t_291 (t_97)
 
 let t_293 = fork t_66 t_3 t_3
 
 let t_294 = t_293 (t_292)
 
-let t_295 = t_294 (t_84)
+let t_295 = t_294 (t_85)
 
 let t_296 = t_73 t_18
 
@@ -607,13 +607,13 @@ let t_297 = t_296 (t_295)
 
 let t_298 = t_78 (t_297)
 
-let t_299 = it t_85
+let t_299 = it t_86
 
-let t_300 = 0.5
+let t_300 = (0.5)
 
 let t_301 = t_9 t_300
 
-let t_302 = compose t_85 t_11 t_3
+let t_302 = compose t_86 t_11 t_3
 
 let t_303 = t_302 (t_301)
 
@@ -621,13 +621,13 @@ let t_304 = t_303 (t_299)
 
 let t_305 = t_90 (t_304)
 
-let t_306 = t_305 (t_89)
+let t_306 = t_305 (t_80)
 
 let t_307 = t_95 (t_306)
 
 let t_308 = t_90 (t_307)
 
-let t_309 = t_308 (t_89)
+let t_309 = t_308 (t_80)
 
 let t_310 = t_95 (t_309)
 
