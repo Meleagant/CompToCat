@@ -108,6 +108,26 @@ let rec compile local_env glob_env : term Source.t -> Target.t *  Target.ok = fu
       compile local_env glob_env src
   | Var (Id ident) ->
     assert false
+  | App (App (Primitive f0, u), v) ->
+  begin
+    let code_u, ok_u = compile local_env glob_env u in
+    let code_v, ok_v = compile local_env glob_env v in
+    let _ = assert (ok_u = OkFloat && ok_v = OkFloat) in
+    match f0 with
+    | Sin | Cos | Exp | Inv | Neg -> 
+      assert false
+    | Add | Mul -> 
+      let ok_a = ok_of_typ @@ snd @@ local_env in
+      let fork = Fork (ok_a, ok_u, ok_v) in
+      let compose = Compose (ok_a, OkPair (ok_u, ok_v), OkFloat) in
+      App (
+          App (compose, Primitive f0),
+          App (
+              App (fork, code_u),
+              code_v
+              )
+      ), OkFloat
+  end
   | App (Primitive f0, v) ->
   begin
     let code_v, ok_v = compile local_env glob_env v in

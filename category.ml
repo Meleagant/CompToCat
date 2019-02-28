@@ -894,8 +894,9 @@ end
       linearD f df
 
   let unit_arrow (type a) (oka : a ok) (x: a) : (unit, a) k =
+    let module Add = (val fst oka: Additive with type t = a) in
     let f () = x in
-    let df = C.unit_arrow (snd oka) x in
+    let df = C.unit_arrow (snd oka) Add.zero in
       linearD f df
 
    let ok_unit =
