@@ -77,6 +77,8 @@ let check_program (source : program_with_locations) : program_with_locations =
        typ1_right 
     | _ ->
     let pos = Position.position term in
+    let _ = Printf.printf "e1 = %s\n" (string_of_term' @@ Position.value @@ t1) in
+    let _ = Printf.printf "e2 = %s\n" (string_of_term' @@ Position.value @@ t2) in
     let msg = Printf.sprintf 
       "Type Error: An argument of type %s is applied to an expression of type %s"
       (string_of_type typ1) (string_of_type typ2) in
