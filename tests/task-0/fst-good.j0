@@ -1,0 +1,4 @@
+let truc (p) = 
+	snd p
+let final (p) = 
+	(truc (1, 2)) + p
