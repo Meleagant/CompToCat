@@ -27,21 +27,18 @@ let rec has_var = function
 let rec str_of_typ typ = 
   let rec print_arrow = function
     | TyArrow (t1, t2) ->
-      Printf.sprintf "%s -> %s" (print_atom t1) (print_arrow t2)
-    | x -> print_atom x
+      Printf.sprintf "%s -> %s" (print_pair t1) (print_arrow t2)
+    | x -> print_pair x
   and print_atom = function
     | TyConstant TyFloat -> "float"
-    | TyVar v -> Printf.sprintf "'a%d(%s)" v.id
-      (match v.def with
-        | None -> ""
-        | Some t -> (str_of_typ t))
-    | x -> Printf.sprintf "(%s)" (print_pair x)
+    | TyVar v -> Printf.sprintf "'a%d" v.id
+    | x -> Printf.sprintf "(%s)" (print_arrow x)
   and print_pair = function
     | TyPair (t1, t2) ->
-      Printf.sprintf "%s, %s" (print_pair t1) (print_arrow t2)
-    | x -> print_arrow x
+      Printf.sprintf "%s, %s" (print_pair t1) (print_atom t2)
+    | x -> print_atom x
   in 
-  print_pair typ
+  print_arrow typ
 
 
 module V = struct
@@ -251,10 +248,15 @@ let rec alg_w env term =
 let wrapper env ( bind , term ) = 
   let (Id ident, typ0) = Position.value bind in
   let _ = Printf.printf "Typing %s\n" ident in
-  let typ, term' = alg_w env term in
+  let typ, term' = 
+      try 
+      alg_w env term 
+      with Stack_overflow -> print_string ident; assert false
+  in
   let _ = match typ0 with
           | None -> ()
-          | Some typ0 -> unify typ0 typ (Position.position bind) in
+          | Some typ0 -> unify typ0 typ (Position.position bind)
+  in
   let typ = canon typ in
   let _ = Printf.printf "\t%s: %s\n" ident (str_of_typ typ) in
   let env =  add ident typ env in
