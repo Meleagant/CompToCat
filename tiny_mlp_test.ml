@@ -20,6 +20,8 @@ let acceptable_error = 0.01
 
 let epsilon = DiffCat.epsilon
 
+let print_error = Array.mem "--print-error" Sys.argv
+
 let eval_net net training_set =
   List.map 
     (fun (input, expectation) ->
@@ -57,7 +59,8 @@ let train : training_set -> net = fun training_set ->
   let net = ref (1., 1.) in
   let _ = 
     while eval_net !net training_set >= acceptable_error do
-      let _ = Printf.printf "Error : %f\n" (eval_net !net training_set) in
+      let _ = if print_error then
+        Printf.printf "Error : %f\n" (eval_net !net training_set) in
       let grad_x, grad_y = grad_set !net training_set in
         net := (fst !net -. grad_x, snd !net -. grad_y)
     done

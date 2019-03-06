@@ -8,6 +8,10 @@ let simplify = ref true
 
 let compact = ref false
 
+let print_infer = ref false
+
+let print_simplification = ref false
+
 let options = Arg.([
   "--typecheck", Unit (fun () -> typecheck_only := true),
   " Typecheck and stop.";
@@ -20,6 +24,12 @@ let options = Arg.([
 
   "--no-simplify", Unit (fun () -> simplify := false),
   " Do not apply the simplifier.";
+
+  "--print-infer", Unit (fun () -> print_infer := true),
+  " Print the steps in the type inference phase.";
+
+  "--print-simplification", Unit (fun () -> print_simplification := true),
+  " Print the steps in the simplification phase.";
 
   "--compact", Unit (fun () -> compact := true),
   " Compactify the generated OCaml code."

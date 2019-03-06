@@ -70,6 +70,7 @@ let rec canon = function
 	| TyVar t -> TyVar t
 
 let type_error pos msg = 
+  let _ = flush_all() in
   Typechecker.type_error pos msg
 
   (** [occur v t] returns true iff [v] is a type occuring in [t] *) 
@@ -87,7 +88,6 @@ let rec unify x y loc =
 	  unify x1 y1 loc; 
     unify x2 y2 loc
   | TyVar v1, TyVar v2 when V.equal v1 v2 ->
-    let _ = Printf.printf "Cas toto\n"  in
     ()      
 	| TyVar v , t -> 
 	  if occur v t then 
@@ -149,6 +149,7 @@ let add ident typ env =
 
   (** [add ident typ env] add the binding [ident] := [typ] in the map.
    It adds generiticity in [typ] *)
+  (* Cette fonction n'est pâs utilisée dans le projet ! A enlever *)
 let add_gen ident typ env = 
   let var_typ = fvars typ in
   (* On ne rajoute que les variables qui ne sont pas libres dans l'envirronment
@@ -247,7 +248,8 @@ let rec alg_w env term =
 
 let wrapper env ( bind , term ) = 
   let (Id ident, typ0) = Position.value bind in
-  let _ = Printf.printf "Typing %s\n" ident in
+  let _ = if !Options.print_infer then
+    Printf.printf "Typing %s\n" ident in
   let typ, term' = 
       try 
       alg_w env term 
@@ -258,7 +260,8 @@ let wrapper env ( bind , term ) =
           | Some typ0 -> unify typ0 typ (Position.position bind)
   in
   let typ = canon typ in
-  let _ = Printf.printf "\t%s: %s\n" ident (str_of_typ typ) in
+  let _ = if !Options.print_infer then
+    Printf.printf "\t%s: %s\n" ident (str_of_typ typ) in
   let env =  add ident typ env in
     env, term'
 
@@ -296,7 +299,8 @@ let rec final_trad_term term =
       | None -> assert false
       | Some typ -> re_trad_type typ 
     in
-    let _ = Printf.printf "\t%s: %s\n" ident (Typechecker.string_of_type typ) in
+    let _ = if !Options.print_infer then
+      Printf.printf "\t%s: %s\n" ident (Typechecker.string_of_type typ) in
     let e1 = final_trad_term e1 in
     let e = S.Lam ((S.Id ident, typ), e1) in
       Position.with_pos pos e 
@@ -327,9 +331,11 @@ let rec final_trad = function
   | f::q ->
     let bind, term = f in
     let S.Id ident, typ = Position.value bind in
-    let _ = Printf.printf "Translating %s\n" ident in
+    let _ = if !Options.print_infer then
+      Printf.printf "Translating %s\n" ident in
     let typ = re_trad_type typ in
-    let _ = Printf.printf "\t%s: %s\n" ident (Typechecker.string_of_type typ) in
+    let _ = if !Options.print_infer then
+      Printf.printf "\t%s: %s\n" ident (Typechecker.string_of_type typ) in
     let bind = Position.with_pos (Position.position bind) (S.Id ident, typ) in
     let term = final_trad_term term in
       (bind, term)::(final_trad q)
@@ -347,10 +353,12 @@ let rec over_wrap env acc = function
           fvars 
           ""
        )
-     in
-     type_error Position.dummy msg 
-   in
-   final_trad acc
+      in
+      type_error Position.dummy msg 
+    in
+    let _ = if !Options.print_infer then
+      Printf.printf "\nTranslation Step\n" in
+    final_trad acc
   | f::q ->
     let Id ident = fst @@ Position.value @@ fst f in
     let new_env, term' = wrapper env f in
@@ -363,4 +371,6 @@ let rec over_wrap env acc = function
     over_wrap new_env acc q
 
 let infer_type (prog: program_with_locations) : S.program_with_locations = 
-    over_wrap empty  [] prog
+  let _ = if !Options.print_infer then
+    Printf.printf "\nType inference Step\n" in
+  over_wrap empty  [] prog

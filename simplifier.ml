@@ -24,7 +24,8 @@ let rec simplify = function
                   App (Curry _, h)), 
              g)) ->
     let id = Identity ok0 in
-    let _ = Printf.printf "On simplifie un [curry apply] -> [f]\n" in
+    let _ = if !Options.print_simplification then
+      Printf.printf "On simplifie un [curry apply] -> [f]\n" in
     let fork = Fork (ok0, ok0, okd) in
     let compose = Compose (ok0, OkPair (ok0, okd), okb) in
     App (
@@ -35,8 +36,10 @@ let rec simplify = function
   (* simplification des identités à gauche & à droite *)
   | App (App (Compose _, Identity _), u)
   | App (App (Compose _, u), Identity _) -> 
-          let _ = Printf.printf "On simplifie un [id o f] -> [f]\n" in
-    u, true
+    let _ = if !Options.print_simplification then
+      Printf.printf "On simplifie un [id o f] -> [f]\n" 
+    in
+      u, true
   (* cas récursifs *)
   | App (u, v) -> 
     let simp_u, modify_u = simplify u in
@@ -56,9 +59,12 @@ let rec simplify_iter prog =
   (** [simplify_wrap] is a small wrapper for [simplify_*]. It also prints the
    * size of the term before and after simplification *)
 let simplify_wrap prog = 
-    let _ = Printf.printf "Avant simplify: %d\n" (size prog) in
+    let _ = if !Options.print_simplification then
+      Printf.printf "Avant simplify: %d\n" (size prog) in
     let prog = simplify_iter prog in
-    let _ = Printf.printf "Après simplify: %d\n" (size prog) in
+    let _ = if !Options.print_simplification then
+      Printf.printf "Après simplify: %d\n" (size prog) 
+    in
       prog
 
 
