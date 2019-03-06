@@ -54,7 +54,8 @@ Ainsi, `joujou` accepte un second format de fichier qui doit avoir l'extension
 `.j0`. Dans ce second format les *binding* ne doivent pas forcément avoir le
 type de l'identifiant déclaré.
 Ces fichiers sont ensuite lus par `lexer0.mll` et `parser0.mly` et transformés
-dans l'AST de `source0.ml`.
+dans l'AST de `source0.ml`. C'est dans le fichier `IO.ml` que se trouve l'appel
+au bon parser/lexer en fonction de l'extension.
 Pour finir, cet AST est typé par `typeinfer.ml` et est transformée par un AST de
 `source.ml`.
 
