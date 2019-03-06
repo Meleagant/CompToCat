@@ -6,7 +6,7 @@ Josselin GIET
 Rendu du
 [projet](https://gitlab.inria.fr/fpottier/mpri-2.4-public/blob/master/project/2018-2019/sujet.pdf)
  du cours de
-[Programmation fonctionnelle et systemes de
+[Programmation fonctionnelle et systèmes de
 types](https://gitlab.inria.fr/fpottier/mpri-2.4-public) du
 [MPRI](https://wikimpri.dptinfo.ens-cachan.fr/doku.php).
 
@@ -27,7 +27,7 @@ tests, il suffit de taper `make -C tests`.
 *  `--no-simplify`           Do not apply the simplifier.
 *  `--print-infer`           Print the steps in the type inference phase.
 *  `--print-simplification`  Print the steps in the simplification phase.
-*  `--compact`               Compactify the generated OCaml code.
+*  `--compact`               Compacify the generated OCaml code.
 *  `-help`,`--help`          Display this list of options
 
 
@@ -70,13 +70,17 @@ type tvar =
 ```
 
 Cette implémentation est beaucoup plus légère car modifier une fois le champ
-`def` le modifie dans toutes occurences de cette variable.
+`def` le modifie dans toutes occurrences de cette variable.
 
 Toutefois comme le langage cible est simplement typé (sans polymorphisme), il y
-a quelques modifications par raport à l'algorithme W :
+a quelques modifications par rapport à l'algorithme W :
 - les `let`-binding ne sont pas généralisés. les variable de types non inférées
   ne sont pas universellement quantifiées, mais peuvent être unifiées dans le
   reste de fonctions.
 - si le type d'une variable de type ne peut pas être inférée, alors le moteur
-  d'inférence de type échoue. Le moeteur de type n'essaye pas de mettre un type
+  d'inférence de type échoue. Le moteur de type n'essaye pas de mettre un type
   par défaut.
+
+Par ailleurs, j'ai rajouté dans le dossier `\tests\task-0` quelques tests
+unitaires, ainsi qu'un script de test dans le `Makefile`. On notera que le
+perceptron est implémenté dans le langages sans annotations de types.
