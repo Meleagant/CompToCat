@@ -1,0 +1,11 @@
+(* A very hard example of type inference: Mairson original example *)
+(* since my algorithm doesn't work with generalisation, this exmple fail !
+ * That is what it is supposed to do ! *)
+
+let id (x) = x 
+
+let f0 (x) = fun (f) -> (f x) x
+
+let f1 (x) = f0 (f0 x)
+
+let f_fin (x: float) = f1 x

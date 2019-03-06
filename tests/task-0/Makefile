@@ -1,6 +1,6 @@
 .PHONY: all clean
 
-JOUJOU=../../joujou --typecheck-eta
+JOUJOU=../../joujou --typecheck-eta --print-infer
 
 GOODS = $(wildcard *-good.j0)
 BADS  = $(wildcard *-bad.j0)

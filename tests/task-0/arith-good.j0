@@ -1,0 +1,5 @@
+let f_add (p) =
+	let (f) = fst p in
+	let (x) = fst (snd p) in
+	let (y) = snd (snd p) in
+	f (x + y) + 0

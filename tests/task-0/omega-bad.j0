@@ -1,2 +1,2 @@
-let probleme (x) = 
+let delta (x) = 
 	x x

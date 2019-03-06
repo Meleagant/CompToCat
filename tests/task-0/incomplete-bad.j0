@@ -1,0 +1,7 @@
+(* When the type of one element cannot be exactly inferred, the type inference
+ * fails *)
+let f_add (p) = (* p : (float -> float) * ((float * float) * ??) *)
+	let (f) = fst p in
+	let (x) = fst (fst (snd p)) in
+	let (y) = snd (fst (snd p)) in
+	f (x + y) + 0
