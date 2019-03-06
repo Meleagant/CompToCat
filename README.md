@@ -86,3 +86,9 @@ a quelques modifications par rapport à l'algorithme W :
 Par ailleurs, j'ai rajouté dans le dossier `\tests\task-0` quelques tests
 unitaires, ainsi qu'un script de test dans le `Makefile`. On notera que le
 perceptron est implémenté dans le langages sans annotations de types.
+
+Acknowledgements
+----------------
+
+In this repository, the major part of the code is given by Y. Régis-Gianas.
+And it is under the Apache 2.0 licence. See [LICENSE](LICENSE).
