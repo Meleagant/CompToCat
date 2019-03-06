@@ -44,6 +44,8 @@ Les règles de simplification implémentées dans `simplifier.ml` sont les suiva
 
 ### Travail supplémentaire
 
+![fonctionnement](graph.svg)
+
 J'ai implémenté un moteur d'inférence de type dans le fichier `typeinfer.ml`.
 Afin de ne pas casser les autres tests (notamment ceux de la phase 2), j'ai mis
 ce moteur avant la vérification de type.
@@ -51,7 +53,7 @@ ce moteur avant la vérification de type.
 Ainsi, `joujou` accepte un second format de fichier qui doit avoir l'extension
 `.j0`. Dans ce second format les *binding* ne doivent pas forcément avoir le
 type de l'identifiant déclaré.
-Ces fichiers sont ensoite lus par `lexer0.mll` et `parser0.mly` et transformés
+Ces fichiers sont ensuite lus par `lexer0.mll` et `parser0.mly` et transformés
 dans l'AST de `source0.ml`.
 Pour finir, cet AST est typé par `typeinfer.ml` et est transformée par un AST de
 `source.ml`.
