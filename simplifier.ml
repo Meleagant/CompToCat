@@ -25,7 +25,8 @@ let rec simplify = function
              g)) ->
     let id = Identity ok0 in
     let _ = if !Options.print_simplification then
-      Printf.printf "On simplifie un [curry apply] -> [f]\n" in
+      Printf.printf "On simplifie un [apply ∘ (curry h Δ g)] -> [h ∘ (id Δ g)]\n" 
+    in
     let fork = Fork (ok0, ok0, okd) in
     let compose = Compose (ok0, OkPair (ok0, okd), okb) in
     App (
@@ -37,7 +38,7 @@ let rec simplify = function
   | App (App (Compose _, Identity _), u)
   | App (App (Compose _, u), Identity _) -> 
     let _ = if !Options.print_simplification then
-      Printf.printf "On simplifie un [id o f] -> [f]\n" 
+      Printf.printf "On simplifie un [id ∘ f] -> [f]\n" 
     in
       u, true
   (* cas récursifs *)

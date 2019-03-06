@@ -37,8 +37,7 @@ Travail effectué
 Toutes les task demandées ont été implémentées.
 Et tous les tests passent.
 
-Quelques remarques :
-* Les règles de simplification implémentées dans `simplifier.ml` sont les suivantes :
+Les règles de simplification implémentées dans `simplifier.ml` sont les suivantes :
   - `id ∘ f` -> `f`
   - `f ∘ id` -> `f`
   - `apply ∘ (curry h Δ g)` -> `h ∘ (id Δ g)`

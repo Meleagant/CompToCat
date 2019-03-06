@@ -6,7 +6,7 @@ INPUT=$1
 BASE=`echo $INPUT | sed s/.j//`
 JOUJOU=../../joujou
 
-$JOUJOU $INPUT
+$JOUJOU --print-simplification $INPUT
 ocamlc -c "$BASE".ml
 ocamlc -c "$BASE"_test.ml
 ocamlc -o "$BASE"_test category.cmo diffCat.cmo "$BASE".cmo "$BASE"_test.cmo
