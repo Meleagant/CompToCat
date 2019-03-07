@@ -20,6 +20,8 @@ let acceptable_error = 0.01
 
 let epsilon = DiffCat.epsilon
 
+(* Si vous voulez voir l'erreur décroitre, ajoutez simplement --print-error
+ * dans la commande qui lance ce fichier *)
 let print_error = Array.mem "--print-error" Sys.argv
 
 let eval_net net training_set =
