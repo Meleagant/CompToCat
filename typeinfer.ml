@@ -17,13 +17,7 @@ let rec re_trad_type = function
   | TyVar {def = Some y} -> re_trad_type y
   | TyVar {def = None} -> assert false
 
-let rec has_var = function
-  | TyConstant TyFloat -> false
-  | TyPair (t1, t2)
-  | TyArrow (t1, t2) ->
-    (has_var t1) || (has_var t2)
-  | TyVar _ -> true
-
+  (** [str_of_typ typ] returns a human readable strong of [typ] *)
 let rec str_of_typ typ = 
   let rec print_arrow = function
     | TyArrow (t1, t2) ->
@@ -58,10 +52,13 @@ end
  * Normalisation and unification
  *)
 
+  (** [head typ] returns the definition of the type variable in [typ] *)
 let rec head = function
   | TyVar {def = Some y} -> head y
   | x -> x
 
+  (** [canon typ] return a [typ'] equals to [typ] but where all type variables
+   have been replaced by their definition (if there is one!) *)
 let rec canon = function 
   | TyConstant _ -> tfloat
 	| TyArrow (x,y) -> TyArrow (canon x, canon y)
@@ -69,6 +66,7 @@ let rec canon = function
   | TyVar {def = Some y} -> canon y
 	| TyVar t -> TyVar t
 
+  (** [type_error pos msg] prints the type error message [msg] at [pos] *)
 let type_error pos msg = 
   let _ = flush_all() in
   Typechecker.type_error pos msg
@@ -80,6 +78,8 @@ let rec occur (v: V.t) t = match (head t) with
 	| TyPair (x,y) -> (occur v x) || (occur v y)
 	| TyVar {id = i} -> i = v.id
 
+  (** [unify x y] tries to unifiy the types [x] and [y]. It works by side-effect
+   on the type variables mutable field *) 
 let rec unify x y loc = 
   match (head x), (head y) with
   | TyConstant _ , TyConstant _  -> ()
@@ -96,7 +96,6 @@ let rec unify x y loc =
       in
       type_error loc msg
 		else 
-      let _ = assert (v.def = None) in
       v.def <- Some t
 	| y1 , TyVar v -> unify y x loc
 	| _, _ -> 
@@ -118,6 +117,8 @@ module VSet = Set.Make(V)
 module VMap = Map.Make(V)
 module SMap = Map.Make(String)
 
+(** [fvars x] returns the set of free variables in [x] 
+ (ie. the type variables with no definition *)
 let rec fvars x = 
   match (head x) with
 	| TyConstant _ -> VSet.empty
@@ -131,7 +132,7 @@ type schema =
 
 type env = 
   { bindings : schema SMap.t; 
-    fvars : VSet.t }
+    fvars : VSet.t } (** the free variables in the current environment. *)
 
   (** the empty environment *)
 let empty = 
@@ -186,6 +187,8 @@ let find ident env =
  * Algorithme W
  *)
 
+(** [alg_w env term] returns the type of [tertm] in the environment [env],
+ and a correponding term with type annotations *)
 let rec alg_w env term =
   let pos = Position.position term in
   match Position.value term with
@@ -246,17 +249,18 @@ let rec alg_w env term =
     let term = Position.with_pos pos (Snd e) in
       final_typ, term
 
+  (** [wrapper env (binding, term)] tries to infer the type of [term] and
+   creates an entry in the environment *)
 let wrapper env ( bind , term ) = 
   let (Id ident, typ0) = Position.value bind in
   let _ = if !Options.print_infer then
     Printf.printf "Typing %s\n" ident in
-  let typ, term' = 
-      try 
-      alg_w env term 
-      with Stack_overflow -> print_string ident; assert false
+  let typ, term' = alg_w env term 
   in
   let _ = match typ0 with
           | None -> ()
+          (* S'il y a déjà une annotation de type, on fait matcher les types 
+           * par unification *)
           | Some typ0 -> unify typ0 typ (Position.position bind)
   in
   let typ = canon typ in
@@ -268,6 +272,8 @@ let wrapper env ( bind , term ) =
 
 
 
+  (** [final_trad_term term] returns [term'] exprseed in the source AST.
+   It has explicit type annotations *)
 let rec final_trad_term term = 
   let pos = Position.position term in
   match Position.value term with
@@ -319,6 +325,8 @@ let rec final_trad_term term =
       Position.with_pos pos e 
 
 
+  (** [recumpute_fvar vars] returns an updated version of [vars] by removing 
+  type variables thet are now defined *)
 let recompute_fvar vars = 
   VSet.fold 
     (fun v s -> VSet.union (fvars (TyVar v)) s) 
@@ -326,6 +334,7 @@ let recompute_fvar vars =
     VSet.empty
       
 
+  (** This functions performs the traduction of all binding in the new AST *)
 let rec final_trad = function
   | [] -> []
   | f::q ->
@@ -342,6 +351,8 @@ let rec final_trad = function
 
 
 
+  (** This function calls the algorithm w on each binding and stores them in the
+   accumulator *)
 let rec over_wrap env acc = function
   | [] -> 
     let fvars = recompute_fvar env.fvars in
@@ -370,6 +381,7 @@ let rec over_wrap env acc = function
     let acc = acc@[bind, term'] in
     over_wrap new_env acc q
 
+  (** Th entry point of the type inference mechanism *)
 let infer_type (prog: program_with_locations) : S.program_with_locations = 
   let _ = if !Options.print_infer then
     Printf.printf "\nType inference Step\n" in

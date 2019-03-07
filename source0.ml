@@ -28,6 +28,8 @@ and typ =
   | TyPair of typ * typ
   | TyVar of tvar
 
+  (** The type variable have a mutable field for their current definition.
+   It allows us to avoid explicit substitution *)
 and tvar = 
   { id : int;
     mutable def : typ option }
